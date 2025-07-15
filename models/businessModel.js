@@ -13,11 +13,11 @@ const businessSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    addressLine1:{
+    address:{
         type:String,
         required:true,
     },
-    addressLine2:{
+    address2:{
         type:String,
     },
     postalCode:{
@@ -47,10 +47,10 @@ const businessSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    company_id:{
-        type:String,
-        required:true,
-    }
+    createdBy:{
+        type:mongoose.Schema.ObjectId,        //company database Id
+        ref:'Company'
+      }
 },{timestamps:true});
 
 const Business = mongoose.model('Business',businessSchema);

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tax Invoice</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      color: #333;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .invoice-container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 10px;
+      page-break-inside: avoid;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 8px;
+      border-bottom: 2px solid #2c5aa0;
+      padding-bottom: 6px;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      color: #2c5aa0;
+    }
+
+    .invoice-details {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 15px;
+    }
+
+    .company-info,
+    .client-info {
+      flex: 1;
+    }
+
+    .company-info h2 {
+      color: #2c5aa0;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .company-info p,
+    .client-info p {
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .invoice-meta {
+      background: #f4f6f8;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-left: 3px solid #2c5aa0;
+    }
+
+    .invoice-meta div {
+      display: inline-block;
+      margin-right: 20px;
+    }
+
+    .invoice-meta strong {
+      color: #2c5aa0;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    .items-table th,
+    .items-table td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .items-table th {
+      background: #2c5aa0;
+      color: white;
+      font-size: 10px;
+    }
+
+    .description {
+      text-align: left;
+    }
+
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 5px;
+    }
+
+    .totals-table {
+      width: 250px;
+      border-collapse: collapse;
+    }
+
+    .totals-table td {
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+    }
+
+    .totals-table .label {
+      background: #f0f0f0;
+      text-align: left;
+    }
+
+    .totals-table .value {
+      text-align: right;
+    }
+
+    .total-due {
+      background: #2c5aa0 !important;
+      color: white !important;
+      font-weight: bold;
+    }
+
+    .payment-info {
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .payment-info h3 {
+      text-align: center;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: #2c5aa0;
+    }
+
+    .payment-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .payment-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .payment-item strong {
+      color: #2c5aa0;
+    }
+
+    .footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 6px;
+      color: #555;
+    }
+
+    .contact-info {
+      margin-top: 4px;
+      font-size: 9px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="invoice-container">
+    <div class="header">
+      <h1>TAX INVOICE</h1>
+    </div>
+
+    <div class="invoice-details">
+      <div class="company-info">
+        <h2>Virtualsphere Technologies Pvt Ltd</h2>
+        <p>CIN: U62011BR2023PTC065082</p>
+        <p>Floor 301, Tower A I-Thum IT Tower,<br />Sector 62, Noida, UP, 201309</p>
+        <p>GSTIN: 10AAJCV6427C1ZO</p>
+      </div>
+
+      <div class="client-info">
+        <h2 style="font-size: 12px;">Bill To:</h2>
+        <p><strong><%= billTo.name %></strong></p>
+        <p><%= billTo.address %></p>
+        <p><%= billTo.city %>, <%= billTo.state %> - <%= billTo.pincode %></p>
+        <p><%= billTo.country %></p>
+      </div>
+    </div>
+
+    <div class="invoice-meta">
+      <div><strong>Invoice Date:</strong> <%= invoiceDetails.invoiceDate %></div>
+      <div><strong>Due Date:</strong> <%= invoiceDetails.dueDate %></div>
+      <div><strong>Invoice No:</strong> <%= invoiceDetails.invoiceNumber %></div>
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Discount</th>
+          <th>IGST</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% let totalBaseAmount = 0; let totalTax = 0; let totalAmount = 0; %>
+        <% products.forEach(item => {
+          let unitPrice = Number(item.unitPrice);
+          let quantity = Number(item.quantity);
+          let discount = Number(item.discount);
+          let taxRate = Number(item.taxRate);
+          let base = unitPrice * quantity;
+          let discountAmt = (discount / 100) * base;
+          let taxable = base - discountAmt;
+          let taxAmt = (taxRate / 100) * taxable;
+          let total = taxable + taxAmt;
+          totalBaseAmount += taxable;
+          totalTax += taxAmt;
+          totalAmount += total;
+        %>
+        <tr>
+          <td class="description"><%= item.productName %></td>
+          <td>₹<%= unitPrice.toFixed(2) %></td>
+          <td><%= quantity %></td>
+          <td><%= discount %>%</td>
+          <td><%= taxRate %>%</td>
+          <td>₹<%= total.toFixed(2) %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="totals-section">
+      <table class="totals-table">
+        <tr>
+          <td class="label">Base Amount</td>
+          <td class="value">₹<%= totalBaseAmount.toFixed(2) %></td>
+        </tr>
+        <tr>
+          <td class="label">IGST</td>
+          <td class="value">₹<%= totalTax.toFixed(2) %></td>
+        </tr>
+        <tr class="total-due">
+          <td class="label">Total Due</td>
+          <td class="value">₹<%= totalAmount.toFixed(2) %></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="payment-info">
+      <h3>Payment Information</h3>
+      <div class="payment-details">
+        <div class="payment-item">
+          <span>Invoice Number:</span> <strong><%= invoiceDetails.invoiceNumber %></strong>
+        </div>
+        <div class="payment-item">
+          <span>Amount:</span> <strong>₹<%= totalAmount.toFixed(2) %></strong>
+        </div>
+        <div class="payment-item">
+          <span>Account Name:</span> <strong>VIRTUALSPHERE TECHNOLOGIES PVT LTD</strong>
+        </div>
+        <div class="payment-item">
+          <span>Account No:</span> <strong>50200090009931</strong>
+        </div>
+        <div class="payment-item">
+          <span>Bank:</span> <strong>HDFC Bank</strong>
+        </div>
+        <div class="payment-item">
+          <span>IFSC:</span> <strong>HDFC0003958</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><strong>Virtualsphere Technologies Pvt Ltd</strong></p>
+      <div class="contact-info">
+        <p>🌐 https://virtualspheretechnologies.in | 📧 info@virtualspheretechnologies.in | 📞 7050506400</p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

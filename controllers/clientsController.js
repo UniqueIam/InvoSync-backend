@@ -1,7 +1,7 @@
 const Client = require("../models/clientModel");
 
 exports.addClient = async(req,res) =>{
-    const companyId = req.user.companyId;
+    const {id} = req.user;
     const { 
         name,
         address1,
@@ -53,7 +53,7 @@ exports.addClient = async(req,res) =>{
             country,
             phoneNumber,
             fixedDiscount,
-            company_id:companyId
+            createdBy:id
         })
 
         await newClient.save();

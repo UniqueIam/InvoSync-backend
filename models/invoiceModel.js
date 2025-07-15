@@ -1,8 +1,20 @@
 const mongoose = require('mongoose');
 
-const invoiceSchema = new mongoose.Schema({
-  logo: String,
+const invoiceSchema = new mongoose.Schema({ 
   billTo: {
+    name: String,
+    cin: String,
+    gstin: String,
+    address1: String,
+    address2: String,
+    postalCode: String,
+    city: String,
+    state: String,
+    country: String,
+    phoneNumber: String,
+    email: String
+  },
+  billFrom:{
     name: String,
     cin: String,
     gstin: String,
@@ -13,7 +25,8 @@ const invoiceSchema = new mongoose.Schema({
     state: String,
     country: String,
     phoneNumber: String,
-    email: String
+    email: String,
+    website:String
   },
   invoiceDescription: {
     type: String,
@@ -24,14 +37,16 @@ const invoiceSchema = new mongoose.Schema({
     invoiceDate: Date,
     dueDate: Date
   },
-  products: {
+  products: [
+  {
       productName: String,
       quantity: Number,
       unitPrice: Number,
       discount:Number,
       taxCode: String,
       netAmount:String
-    },
+    }
+  ],
   paymentMethod: {
     bankAccountName:String,
     bankName: String,
@@ -39,6 +54,10 @@ const invoiceSchema = new mongoose.Schema({
     ifsc: String,
     swift: String
   },
+  createdBy:{
+    type:mongoose.Schema.ObjectId,        //company database Id
+    ref:'Company'
+  }
 },{timestamps:true});
 
 module.exports = mongoose.model('Invoice', invoiceSchema);

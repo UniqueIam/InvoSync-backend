@@ -48,12 +48,12 @@ const clientSchema = new mongoose.Schema({
     },
     totalInvoice:{
         type:Number,
-        default:0
+        default:1
     },
-    company_id:{
-        type:String,
-        required:true
-    }
+    createdBy:{
+        type:mongoose.Schema.ObjectId,        //company database Id
+        ref:'Company'
+      }
 })
 
 const Client = mongoose.model('Client',clientSchema);

@@ -7,6 +7,7 @@ const authRoute = require('./routes/authRoute');
 const invoiceRoute = require('./routes/invoiceRoute');
 const clientRoute = require('./routes/clientRoute');
 const productRoute = require('./routes/productRoute');
+const businessRoute = require('./routes/businessRoute');
 
 dotenv.config({});
 const app = express();
@@ -30,6 +31,7 @@ app.use('/auth',authRoute);
 app.use('/api',invoiceRoute);
 app.use('/api',clientRoute);
 app.use('/api',productRoute);
+app.use('/api',businessRoute);
 
 app.get('/',(req,res)=>{
     res.send('Hello from contaSphere');

@@ -3,44 +3,52 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/adminModel');
 const Company = require('../models/companyModel');
 
-exports.registerCompany = async(req,res) =>{
-    const { companyName,companyEmail,password,companyId,companyLocation,companySite } = req.body;
+exports.registerCompany = async(req, res) => {
+    const { companyName, companyEmail, password, companyLocation, companySite } = req.body;
+    
     try {
-        if(!companyName || !companyEmail || !companyId || !password) {
-            return res.status(400).json({ message: 'Please fill all the fields  of the company' });
+        if(!companyName || !companyEmail || !password) {
+            return res.status(400).json({ message: 'Please fill all the fields of the company' });
         }
 
-        //check if company already exists
-        const company = await Company.findOne({ companyId });
+        // Check if company already exists
+        const company = await Company.findOne({ companyEmail });
         if(company){
             return res.status(409).json({
                 message: 'Company already exists'
             })
         }
 
-        //hashing the password
+        // Hashing the password
         const hashedpassword = await bcrypt.hash(password, 10);
-        //create new company
+        
+        // Handle logo file if uploaded
+        let logoPath = null;
+        if(req.file) {
+            logoPath = req.file.path; // or req.file.filename depending on how you want to store it
+        }
+
+        // Create new company
         const newCompany = await Company.create({
             companyName,
             companyEmail,
-            password:hashedpassword,
-            companyId,
+            password: hashedpassword,
             companyLocation,
             companySite,
+            companyLogo: logoPath, // Add this field to store logo path
             role: 2
         })
 
         await newCompany.save();
-        
+
         return res.status(201).json({
-            success:true,
-            message:'Company registered successfully',
-            company:newCompany
+            success: true,
+            message: 'Company registered successfully',
+            company: newCompany
         })
     } catch (error) {
-        console.log('failed to register new company',error);
-        return res.status(500).json(error.message);
+        console.log('failed to register new company', error);
+        return res.status(500).json({ message: error.message });
     }
 }
 
@@ -117,7 +125,6 @@ exports.companyLogin = async(req,res) =>{
         const token = jwt.sign(
             {
                 id: company._id,
-                companyId: company.companyId,
                 name: company.companyName,
                 email: company.companyEmail,
                 createdAt:company.createdAt,

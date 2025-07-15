@@ -1,7 +1,8 @@
 const Business = require('../models/businessModel');
+const Company = require('../models/companyModel');
 
 exports.addBusiness = async(req,res) =>{
-    const companyId = req.user.companyId;
+    // const companyId = req.user.companyId;
     const {
         name,
         cin,
@@ -24,8 +25,8 @@ exports.addBusiness = async(req,res) =>{
         //check  is the business already exists or not
         const business = await Business.findOne({
             $or:[
-                {name},
-                {cin}
+                {email},
+                {gstin}
             ]
         })
         if (business) {
@@ -36,8 +37,8 @@ exports.addBusiness = async(req,res) =>{
             name,
             cin,
             gstin,
-            addressLine1,
-            addressLine2,
+            address:addressLine1,
+            address2:addressLine2,
             postalCode,
             city,
             state,
@@ -45,8 +46,6 @@ exports.addBusiness = async(req,res) =>{
             phoneNumber,
             website,
             email,
-            company_id,
-            company_id:companyId
         })
         await newBusiness.save();
         return res.status(200).json({
@@ -61,6 +60,20 @@ exports.addBusiness = async(req,res) =>{
 }
 
 exports.editBusiness = async(req,res) =>{
+    const {
+        name,
+        cin,
+        gstin,
+        address1,
+        addressLine2,
+        postalCode,
+        city,
+        state,
+        country,
+        phoneNumber,
+        email,
+        website
+    } = req.body;
     try {
         
     } catch (error) {
@@ -69,5 +82,31 @@ exports.editBusiness = async(req,res) =>{
             message: 'Internal server error',
             error: error.message
         })
+    }
+}
+
+exports.showAllBusiness = async(req,res) =>{
+    const {id} = req.user;
+    console.log("Database id:",id);
+    try {
+        if(!id){
+            return res.status(409).json({
+                message:'Database Id is requried'
+            })
+        }
+        
+        const company = await Company.findById(id);
+        if(!company){
+            return res.status(404).json({
+                message:'Company not found'
+            })
+        }
+        return res.status(200).json({
+            message:'Successfully fetched business data',
+            business:company.business
+        })
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json(error.message);
     }
 }

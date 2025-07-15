@@ -20,9 +20,9 @@ const productSchema = new mongoose.Schema({
         type:Number,
         required:true,
     },
-    company_id:{
-        type:String,
-        required:true
+    createdBy:{
+        type:mongoose.Schema.ObjectId,
+        ref:'Company'
     }
 
 })
