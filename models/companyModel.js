@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const companySchema = mongoose.Schema({
     companyLogo:{
         type:String,
-        required:true
+        default:null
     },
     companyName:{
         type:String,

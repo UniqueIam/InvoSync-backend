@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 const cors = require('cors');
 const dbConnection = require('./db/dbConfig');
 const adminRoute = require('./routes/adminRoute');
@@ -19,8 +20,8 @@ app.use(cors({
 }))
 
 app.use(express.json());
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
-
 
 //database connection
 dbConnection();

@@ -146,10 +146,8 @@ exports.companyLogin = async(req,res) =>{
 }
 
 exports.editCompanyDetails = async(req,res) =>{
-    //get the company id from the token
-    const token = req.headers.authorization;
-    // console.log("token",token);
-    const companyId = req.user.companyId;
+    
+    const companyId = req.user.id;  // console.log("token",token);
     // console.log("companyId:",companyId);
     const { companyName,email } = req.body; 
     try {
@@ -159,7 +157,7 @@ exports.editCompanyDetails = async(req,res) =>{
             })
         }
         const company = await Company.findOneAndUpdate(
-            { companyId: companyId },
+            { _id: companyId },
             { 
                 companyName: companyName, 
                 companyEmail: email 
