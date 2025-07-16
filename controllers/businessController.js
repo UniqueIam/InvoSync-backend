@@ -80,7 +80,7 @@ exports.addBusiness = async (req, res) => {
 
 exports.editBusiness = async (req, res) => {
   const companyId = req.user.id;
-  const { companyName } = req.params;
+  const {companyName } = req.params;
   console.log("Company Name",companyName);
   const {
     name,

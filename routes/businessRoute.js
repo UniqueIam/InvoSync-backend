@@ -5,7 +5,7 @@ const { showAllBusiness, addBusiness, editBusiness } = require('../controllers/b
 const router = express.Router();
 
 router.post('/add-business',authMiddleware,addBusiness);
-router.put('/update-business',authMiddleware,editBusiness);
+router.put('/update-business/:companyName',authMiddleware,editBusiness);
 router.get('/getAllBusiness',authMiddleware,showAllBusiness);
 
 module.exports = router;

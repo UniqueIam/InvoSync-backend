@@ -1,4 +1,5 @@
 const Client = require("../models/clientModel");
+const Invoice = require("../models/invoiceModel");
 
 exports.addClient = async(req,res) =>{
     const {id} = req.user;
@@ -67,14 +68,41 @@ exports.addClient = async(req,res) =>{
     }
 }
 
-exports.getAllClients = async(req,res) =>{
-    const companyId = req.user.companyId;
-    try {
-        
-    } catch (error) {
-        
+exports.getAllClients = async (req, res) => {
+  const userId = req.user.id;
+  console.log("User ID:", userId);
+
+  try {
+    if (!userId) {
+      return res.status(401).json({
+        message: 'Unauthorized access',
+      });
     }
-}
+
+    // ✅ Fetch all clients created by the logged-in user
+    const clients = await Client.find({ createdBy: userId });
+
+    if (!clients || clients.length === 0) {
+      return res.status(404).json({
+        message: 'No clients found for this user.',
+        clients: [],
+      });
+    }
+
+    // ✅ Send the clients directly
+    return res.status(200).json({
+      message: 'Clients retrieved successfully',
+      clients,
+    });
+
+  } catch (error) {
+    console.error("Error retrieving clients:", error.message);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
 
 exports.getClientByName = async(req,res) =>{
     const { name } = req.params;
