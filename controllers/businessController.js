@@ -78,31 +78,63 @@ exports.addBusiness = async (req, res) => {
   }
 };
 
-exports.editBusiness = async(req,res) =>{
-    const {
-        name,
-        cin,
-        gstin,
-        address1,
-        addressLine2,
-        postalCode,
-        city,
-        state,
-        country,
-        phoneNumber,
-        email,
-        website
-    } = req.body;
-    try {
-        
-    } catch (error) {
-        console.log('failed to edit the business',error);
-        return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message
-        })
+exports.editBusiness = async (req, res) => {
+  const companyId = req.user.id;
+  const { companyName } = req.params;
+  console.log("Company Name",companyName);
+  const {
+    name,
+    cin,
+    gstin,
+    address1,
+    address2,
+    postalCode,
+    city,
+    state,
+    country,
+    phoneNumber,
+    email,
+    website
+  } = req.body;
+
+  try {
+    // Construct the updated business object
+    const updatedBusiness = {
+      name,
+      cin,
+      gstin,
+      address1,
+      address2,
+      postalCode,
+      city,
+      state,
+      country,
+      phoneNumber,
+      email,
+      website
+    };
+
+    // Use positional operator to update only the matched business
+    const result = await Company.updateOne(
+      { _id: companyId, "business.name": companyName },  // Find company and business by name
+      {
+        $set: {
+          "business.$": updatedBusiness  // Replace matched business object
+        }
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Business not found" });
     }
-}
+
+    return res.status(200).json({ message: "Business updated successfully" });
+  } catch (error) {
+    console.error("Failed to update business:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 exports.showAllBusiness = async(req,res) =>{
     const {id} = req.user;
