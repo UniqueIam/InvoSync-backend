@@ -216,6 +216,23 @@ exports.getAllInvoicesByDate = async (req, res) => {
   }
 };
 
+exports.getInvoiceByNumber = async(req,res) =>{
+  const {id} = req.user;
+  const {invoiceNumber} = req.params;
+  try {
+    if(!invoiceNumber){
+      return res.status(409).json({
+        message:'Invoice number is required'
+      })
+    }
+    const invoice = await Invoice.findById(invoiceNumber);
+    console.log("Company Id:",invoice);
+    
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json(error.message);
+  }
+}
 
 exports.shouldShowLogoUpload = async (req, res) => {
   const { id } = req.user;
