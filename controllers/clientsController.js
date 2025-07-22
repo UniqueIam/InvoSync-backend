@@ -24,9 +24,8 @@ exports.addClient = async(req,res) =>{
         }
 
         const existingClient = await Client.findOne({
-            $or:[
+            $and:[
                 {name:name},
-                {cin:cin},
                 {email:email}
             ]
         })
@@ -79,19 +78,29 @@ exports.getAllClients = async (req, res) => {
       });
     }
 
-    // ✅ Fetch all clients created by the logged-in user
-    const clients = await Client.find({ createdBy: userId });
+    // ✅ Aggregation to get unique clients by name created by the current user
+    const clients = await Client.aggregate([
+      { $match: { createdBy: userId } },
+      {
+        $group: {
+          _id: "$name", // group by client name
+          doc: { $first: "$$ROOT" } // pick the first document for each name
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$doc" } // flatten the result
+      }
+    ]);
 
     if (!clients || clients.length === 0) {
       return res.status(404).json({
-        message: 'No clients found for this user.',
+        message: 'No distinct clients found for this user.',
         clients: [],
       });
     }
 
-    // ✅ Send the clients directly
     return res.status(200).json({
-      message: 'Clients retrieved successfully',
+      message: 'Distinct clients retrieved successfully',
       clients,
     });
 
@@ -103,6 +112,7 @@ exports.getAllClients = async (req, res) => {
     });
   }
 };
+
 
 exports.getClientByName = async(req,res) =>{
     const { name } = req.params;
