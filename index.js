@@ -13,12 +13,25 @@ const businessRoute = require('./routes/businessRoute');
 dotenv.config({});
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:3000', // local dev
+  'https://invo-sync-frontend-giet.vercel.app', // production frontend
+  'https://invo-sync-frontend-giet.vercel.app/login'
+];
+
 app.use(cors({
-    origin: 'https://invo-sync-frontend-giet.vercel.app',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials:true
-}))
+    credentials: true
+}));
+
 
 app.use(express.json());
 app.use(express.static('public'));
