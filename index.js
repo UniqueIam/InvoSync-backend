@@ -14,7 +14,7 @@ dotenv.config({});
 const app = express();
 
 app.use(cors({
-    origin: '*',
+    origin: 'invosync-frontend.vercel.ap',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
